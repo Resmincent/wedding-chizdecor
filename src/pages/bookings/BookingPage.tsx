@@ -1,0 +1,158 @@
+import { Link } from "react-router-dom";
+import Navbar from "../../components/Navbar";
+import { useState, useEffect } from "react";
+import type { UserBookingItem } from "../../models/model";
+import { getMyBookings } from "../../services/bookingService";
+import { generateMidtransToken } from "../../services/midtransService";
+import { toast } from "react-toastify";
+import { loadMidtransScript } from "../../utils/loadMidtrans";
+import { payWithMidtrans } from "../../utils/midtrans";
+import axios from "axios";
+
+export default function BookingPage() {
+  const [bookings, setBookings] = useState<UserBookingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await getMyBookings();
+        setBookings(res.data);
+      } catch (error) {
+        console.error("❌ Gagal mengambil data booking:", error);
+        toast.error("Gagal memuat data booking.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
+  useEffect(() => {
+    loadMidtransScript(import.meta.env.VITE_MIDTRANS_CLIENT_KEY || "")
+      .then(() => console.log("✅ Midtrans script loaded"))
+      .catch(() => toast.error("Gagal memuat Midtrans Snap."));
+  }, []);
+
+  const handlePayment = async (
+    bookingId: string,
+    paymentType: "dp" | "first" | "final"
+  ) => {
+    try {
+      const { token } = await generateMidtransToken({ bookingId, paymentType });
+      payWithMidtrans(token);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const message = err.response?.data?.message;
+
+        if (status === 409) {
+          toast.error("Masih ada transaksi sebelumnya yang belum selesai.");
+        } else if (status === 400) {
+          toast.error(message || "Pembayaran belum tersedia.");
+        } else {
+          toast.error("Gagal memulai pembayaran.");
+        }
+      } else {
+        toast.error("Terjadi kesalahan yang tidak diketahui.");
+      }
+
+      console.error("Midtrans error:", err);
+    }
+  };
+
+  const renderPaymentButtons = (booking: UserBookingItem) => {
+    if (
+      !booking.available_payments ||
+      booking.available_payments.length === 0
+    ) {
+      return null;
+    }
+
+    return (
+      <div className="flex flex-col items-center space-y-1">
+        {booking.available_payments.includes("dp") && (
+          <button
+            onClick={() => handlePayment(booking.id, "dp")}
+            className="mt-1 px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          >
+            Bayar DP
+          </button>
+        )}
+        {booking.available_payments.includes("first") && (
+          <button
+            onClick={() => handlePayment(booking.id, "first")}
+            className="mt-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Bayar Tahap 1
+          </button>
+        )}
+        {booking.available_payments.includes("final") && (
+          <button
+            onClick={() => handlePayment(booking.id, "final")}
+            className="mt-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Pelunasan
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-6xl mx-auto pt-28 px-4 pb-12">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Booking Saya</h1>
+
+        {loading ? (
+          <p className="text-gray-600">Memuat data...</p>
+        ) : bookings.length === 0 ? (
+          <p className="text-gray-600">Belum ada booking.</p>
+        ) : (
+          <div className="overflow-x-auto bg-white shadow rounded-xl">
+            <table className="min-w-full text-sm text-left border-collapse">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="px-4 py-3 border-b">Judul Dekorasi</th>
+                  <th className="px-4 py-3 border-b">Tanggal Acara</th>
+                  <th className="px-4 py-3 border-b">Status</th>
+                  <th className="px-4 py-3 border-b text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={booking.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 border-b">
+                      {booking.decoration.title}
+                    </td>
+                    <td className="px-4 py-3 border-b">
+                      {new Date(booking.date).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-4 py-3 border-b capitalize">
+                      {booking.status}
+                    </td>
+                    <td className="px-4 py-3 border-b text-center space-y-2">
+                      <Link
+                        to={`/invoice/${booking.id}`}
+                        className="text-blue-600 hover:underline block"
+                      >
+                        Lihat Invoice
+                      </Link>
+                      {renderPaymentButtons(booking)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
