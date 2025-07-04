@@ -121,6 +121,20 @@ export default function BookNowPage() {
     );
   }
 
+  const getMinBookingDate = () => {
+    const today = new Date();
+    const minDate = new Date(today);
+    if (decoration?.category?.toLowerCase() === "wedding") {
+      minDate.setDate(today.getDate() + 21); // H-3 minggu
+    } else if (decoration?.category?.toLowerCase() === "engagement") {
+      minDate.setDate(today.getDate() + 5); // H-5 hari
+    } else {
+      // Default: minimal hari ini
+      return today.toISOString().split("T")[0];
+    }
+    return minDate.toISOString().split("T")[0];
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -142,7 +156,7 @@ export default function BookNowPage() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              min={new Date().toISOString().split("T")[0]}
+              min={getMinBookingDate()}
               className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>

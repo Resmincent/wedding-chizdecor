@@ -19,8 +19,15 @@ export default function LoginPage() {
     try {
       const result = await loginUser(email, password);
       const token = result.data.token;
+      const role = result.data.role;
+
+      localStorage.setItem("role", role);
       localStorage.setItem("token", token);
-      navigate("/");
+      if (role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
       const msg = error.response?.data?.message || error.message;

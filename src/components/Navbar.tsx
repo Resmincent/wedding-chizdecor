@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import BotChat from "./BotChat";
+// import BotChat from "./BotChat";
 import useAuth from "../hooks/useAuth";
 
 export default function Navbar() {
@@ -158,7 +158,7 @@ export default function Navbar() {
         </div>
       )}
 
-      <BotChat />
+      {/* <BotChat /> */}
     </nav>
   );
 }

@@ -105,6 +105,20 @@ export interface BookingDetail {
   available_payments: Array<"dp" | "first" | "final">;
 }
 
+interface User {
+  id: string;
+  name: string;
+  phone_number: string;
+}
+export interface BookingDetailAdmin {
+  id: string;
+  date: string;
+  status: string;
+  created_at: string;
+  user: User;
+  decoration: Decoration;
+}
+
 export interface LoginResponse {
   message: string;
   data: {
@@ -151,7 +165,17 @@ export interface ProjectDecoration {
   id: string;
   title: string;
   description: string;
-  cover_image: string;
+  cover_image: string | null;
+}
+
+export type ProjectImageUrl = string;
+
+export interface ProjectImage {
+  id: string;
+  project_id: string;
+  image_url: string;
+  order_index: number;
+  created_at: string;
 }
 
 export interface ProjectDecorationDetail {
@@ -160,5 +184,5 @@ export interface ProjectDecorationDetail {
   description: string;
   decoration_id: string;
   created_at: string;
-  images: string[];
+  images: ProjectImageUrl[];
 }
