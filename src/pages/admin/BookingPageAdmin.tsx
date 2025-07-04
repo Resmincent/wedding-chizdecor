@@ -104,31 +104,31 @@ export default function BookingPageAdmin() {
             <TableHead sx={{ backgroundColor: colors.primary[400] }}>
               <TableRow>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Booking ID
+                  ID Booking
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Customer Name
+                  Nama Pelanggan
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Phone Number
+                  Nomor Telepon
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Decoration Package
+                  Paket Dekorasi
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Booking Date
+                  Tanggal Booking
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Status
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Base Price
+                  Total Harga
                 </TableCell>
                 {bookings.some((booking) => booking.status === "pending") && (
                   <TableCell
                     sx={{ color: colors.grey[100], fontWeight: "bold" }}
                   >
-                    Actions
+                    Aksi
                   </TableCell>
                 )}
               </TableRow>
