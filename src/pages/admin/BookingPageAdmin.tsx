@@ -142,15 +142,16 @@ export default function BookingPageAdmin() {
                     {formatCurrency(booking.decoration.base_price)}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleCancel(booking.id)}
-                      disabled={booking.status === "cancelled"}
-                    >
-                      Cancel
-                    </Button>
+                    {booking.status === "pending" && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleCancel(booking.id)}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
