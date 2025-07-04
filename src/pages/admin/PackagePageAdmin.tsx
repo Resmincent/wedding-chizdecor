@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Alert,
 } from "@mui/material";
 import {
   getAllAdminDecorations,
@@ -25,7 +26,7 @@ import {
 } from "../../services/decorationService";
 import type { Decoration } from "../../models/model";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PackagePageAdmin() {
   const theme = useTheme();
@@ -39,6 +40,11 @@ export default function PackagePageAdmin() {
 
   const [decorations, setDecorations] = useState<Decoration[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
 
   const fetchDecorations = async () => {
     try {
@@ -56,6 +62,18 @@ export default function PackagePageAdmin() {
     setSelectedDecorationId(id);
     setOpenDeleteModal(true);
   };
+
+  useEffect(() => {
+    const state = location.state as {
+      message?: string;
+      type?: "success" | "error";
+    };
+    if (state?.message) {
+      setMessage(state.message);
+      setMessageType(state.type || "success");
+      window.history.replaceState({}, document.title); // hapus state agar tidak muncul lagi di refresh
+    }
+  }, [location.state]);
 
   const confirmDelete = async () => {
     if (!selectedDecorationId) return;
@@ -103,6 +121,12 @@ export default function PackagePageAdmin() {
           Add
         </Button>
       </Box>
+
+      {message && (
+        <Box my={2}>
+          <Alert severity={messageType || "success"}>{message}</Alert>
+        </Box>
+      )}
 
       <Box mt="20px" p="20px">
         <TableContainer component={Paper}>

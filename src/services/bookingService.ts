@@ -13,10 +13,17 @@ import api from "./api";
 export const createBooking = async (
   payload: BookingPayload
 ): Promise<BookingCreatedResponse> => {
-  const response = await api.post("/booking", payload);
-  return response.data;
+  try {
+    const response = await api.post<BookingCreatedResponse>(
+      "/booking",
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("❌ Gagal membuat booking:", error);
+    throw error;
+  }
 };
-
 /**
  * Mendapatkan semua booking milik user yang login
  */

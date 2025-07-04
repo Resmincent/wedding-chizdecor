@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ export default function PackageEditPage() {
   const [description, setDescription] = useState("");
   const [basePrice, setBasePrice] = useState<number | "">("");
   const [category, setCategory] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -68,10 +69,12 @@ export default function PackageEditPage() {
         base_price: Number(basePrice),
         category,
       });
-      toast.success("Paket dekorasi berhasil diperbarui!");
-      setTimeout(() => {
-        window.location.href = "/admin/packages";
-      }, 1000);
+      navigate("/admin/packages", {
+        state: {
+          message: "Paket dekorasi berhasil diperbarui!",
+          type: "success",
+        },
+      });
     } catch (error) {
       console.error("❌ Gagal memperbarui paket:", error);
       toast.error("Gagal memperbarui paket dekorasi.");

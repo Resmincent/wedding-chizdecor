@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import Header from "../../../components/admin/Header";
 import { tokens } from "../../../theme";
 import { createDecoration } from "../../../services/decorationService";
+import { useNavigate } from "react-router-dom";
 
 export default function PackagePageAdmin() {
   const theme = useTheme();
@@ -23,6 +24,7 @@ export default function PackagePageAdmin() {
   const [basePrice, setBasePrice] = useState<number | "">("");
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (!title || !description || !basePrice || !category) {
@@ -40,10 +42,12 @@ export default function PackagePageAdmin() {
     try {
       setLoading(true);
       await createDecoration(payload);
-      toast.success("Paket dekorasi berhasil ditambahkan!");
-      setTimeout(() => {
-        window.location.href = "/admin/packages";
-      }, 1000);
+      navigate("/admin/packages", {
+        state: {
+          message: "Paket dekorasi berhasil ditambahkan!",
+          type: "success",
+        },
+      });
     } catch {
       // console.error("❌ Gagal menambahkan paket:", error);
       toast.error("Gagal menambahkan paket dekorasi.");

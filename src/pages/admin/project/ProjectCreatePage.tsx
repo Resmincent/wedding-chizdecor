@@ -22,6 +22,7 @@ import { tokens } from "../../../theme";
 import api from "../../../services/api";
 import type { Decoration } from "../../../models/model";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { useNavigate } from "react-router-dom";
 
 export default function ProjectCreatePage() {
   const theme = useTheme();
@@ -34,6 +35,7 @@ export default function ProjectCreatePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [decorations, setDecorations] = useState<Decoration[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDecorations = async () => {
@@ -115,10 +117,12 @@ export default function ProjectCreatePage() {
         });
       }
 
-      toast.success("Project decoration berhasil ditambahkan!");
-      setTimeout(() => {
-        window.location.href = "/admin/project-decorations";
-      }, 1000);
+      navigate("/admin/project-decorations", {
+        state: {
+          message: "Project decoration berhasil ditambahkan!",
+          type: "success",
+        },
+      });
     } catch {
       toast.error("Gagal menambahkan project decoration.");
     } finally {

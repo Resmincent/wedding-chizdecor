@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Alert,
 } from "@mui/material";
 import {
   getAllGalleryDecorations,
@@ -25,7 +26,7 @@ import {
 } from "../../services/galleryService";
 import type { GalleryItem } from "../../models/model";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function GalleryPageAdmin() {
   const navigate = useNavigate();
@@ -40,6 +41,12 @@ export default function GalleryPageAdmin() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const location = useLocation();
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
+
   const fetchGalleries = async () => {
     try {
       const res = await getAllGalleryDecorations();
@@ -51,6 +58,18 @@ export default function GalleryPageAdmin() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const state = location.state as {
+      message?: string;
+      type?: "success" | "error";
+    };
+    if (state?.message) {
+      setMessage(state.message);
+      setMessageType(state.type || "success");
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleDelete = async () => {
     if (!selectedId) return;
@@ -119,6 +138,12 @@ export default function GalleryPageAdmin() {
           Add
         </Button>
       </Box>
+
+      {message && (
+        <Box my={2}>
+          <Alert severity={messageType || "success"}>{message}</Alert>
+        </Box>
+      )}
 
       <Box mt="20px" p="20px">
         <TableContainer component={Paper}>

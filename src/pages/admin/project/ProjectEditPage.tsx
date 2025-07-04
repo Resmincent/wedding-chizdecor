@@ -14,7 +14,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Header from "../../../components/admin/Header";
 import { getAllDecorations } from "../../../services/decorationService";
@@ -39,6 +39,7 @@ export default function ProjectEditPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [decorations, setDecorations] = useState<Decoration[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,10 +140,12 @@ export default function ProjectEditPage() {
         console.log("✅ Attached image to project:", id);
       }
 
-      toast.success("Project decoration berhasil diupdate!");
-      setTimeout(() => {
-        window.location.href = "/admin/project-decorations";
-      }, 1000);
+      navigate("/admin/project-decorations", {
+        state: {
+          message: "Project decoration berhasil diupdate!",
+          type: "success",
+        },
+      });
     } catch (error) {
       console.error("❌ Gagal mengupdate project decoration:", error);
       toast.error("Gagal mengupdate project decoration.");

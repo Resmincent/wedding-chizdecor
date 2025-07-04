@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import type {
   AdditionalService,
@@ -14,6 +14,7 @@ import type { AxiosError } from "axios";
 
 export default function BookNowPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const [decoration, setDecoration] = useState<DecorationDetail | null>(null);
   const [services, setServices] = useState<AdditionalService[]>([]);
@@ -24,6 +25,7 @@ export default function BookNowPage() {
   const [loading, setLoading] = useState(true);
   const [isAgreed, setIsAgreed] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -69,33 +71,49 @@ export default function BookNowPage() {
   };
 
   const handleSubmit = async () => {
+    if (!isAgreed) {
+      toast.error(
+        "Anda harus menyetujui syarat dan ketentuan terlebih dahulu."
+      );
+      return;
+    }
+
+    if (submitting) return; // Hindari multiple submit
+
     if (!decoration || !date) {
       toast.error("Harap lengkapi semua data terlebih dahulu.");
       return;
     }
 
-    const payload: BookingPayload = {
-      decoration_id: decoration.id,
-      date,
-      additional_services: selectedServices
-        .filter((s) => s.quantity > 0)
-        .map((s) => ({
-          service_id: s.id,
-          quantity: s.quantity,
-        })),
-    };
-
     try {
+      setSubmitting(true);
+
+      const payload: BookingPayload = {
+        decoration_id: decoration.id,
+        date,
+        additional_services: selectedServices
+          .filter((s) => s.quantity > 0)
+          .map((s) => ({
+            service_id: s.id,
+            quantity: s.quantity,
+          })),
+      };
+
       const result = await createBooking(payload);
-      toast.success(result.message || "Booking berhasil dibuat!");
 
       setTimeout(() => {
-        window.location.href = "/booking";
-      }, 1500);
+        navigate("/booking", {
+          state: {
+            successMessage: result.message || "Booking berhasil dibuat!",
+          },
+        });
+      }, 2000);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
       console.error("❌ Gagal booking:", err);
       toast.error(err.response?.data?.message || "Gagal melakukan pemesanan.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -277,14 +295,14 @@ export default function BookNowPage() {
           {/* Tombol Pesan Sekarang */}
           <button
             onClick={handleSubmit}
-            disabled={!isAgreed}
+            disabled={!isAgreed || submitting}
             className={`w-full py-3 rounded-md transition-all duration-300 shadow-md font-semibold ${
-              isAgreed
+              isAgreed && !submitting
                 ? "bg-secondary hover:bg-neutral-500 text-white hover:shadow-lg"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
-            Pesan Sekarang
+            {submitting ? "Memproses..." : "Pesan Sekarang"}
           </button>
         </div>
       </div>

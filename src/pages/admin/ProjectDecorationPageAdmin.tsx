@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Alert,
 } from "@mui/material";
 import {
   getAllProjectDecorations,
@@ -25,7 +26,7 @@ import {
 } from "../../services/projectDecorationService";
 import type { ProjectDecoration } from "../../models/model";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ProjectDecorationPageAdmin() {
   const theme = useTheme();
@@ -38,6 +39,11 @@ export default function ProjectDecorationPageAdmin() {
 
   const [projects, setProjects] = useState<ProjectDecoration[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
 
   const fetchProjects = async () => {
     try {
@@ -50,6 +56,18 @@ export default function ProjectDecorationPageAdmin() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const state = location.state as {
+      message?: string;
+      type?: "success" | "error";
+    };
+    if (state?.message) {
+      setMessage(state.message);
+      setMessageType(state.type || "success");
+      window.history.replaceState({}, document.title); // clear state agar tidak muncul lagi di refresh
+    }
+  }, [location.state]);
 
   const handleDelete = (id: string) => {
     setSelectedProjectId(id);
@@ -112,6 +130,11 @@ export default function ProjectDecorationPageAdmin() {
           Add
         </Button>
       </Box>
+      {message && (
+        <Box my={2}>
+          <Alert severity={messageType || "success"}>{message}</Alert>
+        </Box>
+      )}
 
       <Box mt="20px" p="20px">
         <TableContainer component={Paper}>

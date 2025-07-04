@@ -17,10 +17,12 @@ import { createGalleryDecoration } from "../../../services/galleryService";
 import { tokens } from "../../../theme";
 import api from "../../../services/api";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { useNavigate } from "react-router-dom";
 
 export default function GalleryCreatePage() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -68,10 +70,12 @@ export default function GalleryCreatePage() {
         image: uploadedImageUrl,
       });
 
-      toast.success("Gallery berhasil ditambahkan!");
-      setTimeout(() => {
-        window.location.href = "/admin/galleries";
-      }, 1000);
+      navigate("/admin/galleries", {
+        state: {
+          message: "Gallery berhasil ditambahkan!",
+          type: "success",
+        },
+      });
     } catch {
       // console.error("❌ Gagal menambahkan gallery:", error);
       toast.error("Gagal menambahkan gallery.");

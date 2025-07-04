@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import type { UserBookingItem } from "../../models/model";
@@ -12,6 +12,17 @@ import axios from "axios";
 export default function BookingPage() {
   const [bookings, setBookings] = useState<UserBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const state = location.state as { successMessage?: string };
+    if (state?.successMessage) {
+      setSuccessMessage(state.successMessage);
+      // Optional: clear history state agar tidak muncul lagi jika refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -105,6 +116,12 @@ export default function BookingPage() {
       <Navbar />
       <div className="max-w-6xl mx-auto pt-28 px-4 pb-12">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Booking Saya</h1>
+
+        {successMessage && (
+          <div className="mb-4 px-4 py-3 rounded bg-green-100 text-green-800 border border-green-300">
+            {successMessage}
+          </div>
+        )}
 
         {loading ? (
           <p className="text-gray-600">Memuat data...</p>

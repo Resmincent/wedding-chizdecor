@@ -47,20 +47,22 @@ export type BookingPayload = {
   }[];
 };
 
+export interface BookingData {
+  id: string;
+  user_id: string;
+  decoration_id: string;
+  date: string;
+  status: string;
+  dp_amount: number | null;
+  full_amount: number | null;
+  invoice_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface BookingCreatedResponse {
   message: string;
-  data: {
-    id: string;
-    user_id: string;
-    decoration_id: string;
-    date: string;
-    status: string;
-    dp_amount: number | null;
-    full_amount: number | null;
-    invoice_url: string | null;
-    created_at: string;
-    updated_at: string;
-  };
+  data: BookingData;
 }
 
 export interface UserBookingItem {

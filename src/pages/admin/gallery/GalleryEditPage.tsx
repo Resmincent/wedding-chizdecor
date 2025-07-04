@@ -93,10 +93,12 @@ export default function GalleryEditPage() {
         image: finalImageUrl!,
       });
 
-      toast.success("Gallery berhasil diperbarui!");
-      setTimeout(() => {
-        navigate("/admin/galleries");
-      }, 1000);
+      navigate("/admin/galleries", {
+        state: {
+          message: "Gallery berhasil diperbarui!",
+          type: "success",
+        },
+      });
     } catch {
       // console.error("❌ Gagal update gallery:", error);
       toast.error("Gagal update gallery.");
