@@ -119,6 +119,8 @@ export interface BookingDetailAdmin {
   created_at: string;
   user: User;
   decoration: Decoration;
+  addons_total: number;
+  total_price: number;
 }
 
 export interface LoginResponse {

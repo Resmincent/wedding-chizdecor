@@ -142,9 +142,7 @@ export default function BookingPageAdmin() {
                   <TableCell>{booking.decoration.title}</TableCell>
                   <TableCell>{formatDate(booking.date)}</TableCell>
                   <TableCell>{formatStatus(booking.status)}</TableCell>
-                  <TableCell>
-                    {formatCurrency(booking.decoration.base_price)}
-                  </TableCell>
+                  <TableCell>{formatCurrency(booking.total_price)}</TableCell>
                   <TableCell>
                     {booking.status === "pending" && (
                       <Button
