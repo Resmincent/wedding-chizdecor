@@ -35,8 +35,9 @@ export default function ProjectEditPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [decorationId, setDecorationId] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   const [decorations, setDecorations] = useState<Decoration[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -55,13 +56,17 @@ export default function ProjectEditPage() {
         setDescription(project.description);
         setDecorationId(project.decoration_id);
 
-        // Ambil preview gambar dari GET detail, pastikan images array tidak kosong
         if (project.images && project.images.length > 0) {
-          // Sesuaikan ini dengan tipe response GET detail kamu:
-          // Jika images adalah array of object:
-          setImagePreview(project.images[0]);
-          // Jika images adalah array of string, pakai:
-          // setImagePreview(project.images[0]);
+          // Mapping ke array URL absolut
+          const mappedUrls = project.images.map(
+            (img: string | { url: string }) => {
+              const imageUrl = typeof img === "string" ? img : img.url; // jika array of object pakai .url, kalau array of string pakai img langsung
+              return imageUrl.startsWith("http")
+                ? imageUrl
+                : `${process.env.REACT_APP_API_URL}${imageUrl}`;
+            }
+          );
+          setImagePreviews(mappedUrls);
         }
       } catch (error) {
         console.error("❌ Failed to fetch data:", error);
@@ -72,10 +77,10 @@ export default function ProjectEditPage() {
   }, [id]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setImageFiles(files);
+    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
   const uploadImageToBE = async (file: File, folder: string) => {
@@ -105,39 +110,32 @@ export default function ProjectEditPage() {
       console.log("✅ Updated project text:", id);
 
       // Jika ada gambar baru, upload ke /uploads lalu attach ke project
-      if (imageFile) {
+      if (imageFiles.length > 0) {
         const selectedDecoration = decorations.find(
           (decoration) => decoration.id === decorationId
         );
-
-        if (!selectedDecoration) {
-          throw new Error("Dekorasi tidak ditemukan.");
-        }
+        if (!selectedDecoration) throw new Error("Dekorasi tidak ditemukan.");
 
         let folderName = selectedDecoration.category || "default";
         folderName = folderName
           .trim()
           .replace(/\s+/g, "_")
           .replace(/[^a-zA-Z0-9_-]/g, "");
-
-        if (folderName.toLowerCase() === "engagement") {
+        if (folderName.toLowerCase() === "engagement")
           folderName = "Engagement";
-        } else if (folderName.toLowerCase() === "wedding") {
-          folderName = "Wedding";
-        } else if (!["users", "gallery"].includes(folderName)) {
+        else if (folderName.toLowerCase() === "wedding") folderName = "Wedding";
+        else if (!["users", "gallery"].includes(folderName))
           folderName = "general";
+
+        const uploadedUrls: string[] = [];
+        for (const file of imageFiles) {
+          const url = await uploadImageToBE(file, folderName);
+          uploadedUrls.push(url);
         }
 
-        console.log("📂 Folder to upload:", folderName);
-
-        const uploadedImageUrl = await uploadImageToBE(imageFile, folderName);
-
-        console.log("✅ Uploaded image URL:", uploadedImageUrl);
-
         await api.post(`/admin/project-decorations/${id}/images`, {
-          images: [uploadedImageUrl],
+          images: uploadedUrls,
         });
-        console.log("✅ Attached image to project:", id);
       }
 
       navigate("/admin/project-decorations", {
@@ -261,27 +259,33 @@ export default function ProjectEditPage() {
                   fontWeight: 600,
                 }}
               >
-                {imageFile || imagePreview ? "Ganti Gambar" : "Upload Gambar"}
+                {imageFiles || imagePreviews ? "Ganti Gambar" : "Upload Gambar"}
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   hidden
                   onChange={handleImageChange}
                 />
               </Button>
 
-              {imagePreview && (
-                <Avatar
-                  src={imagePreview}
-                  alt="Preview"
-                  variant="rounded"
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    boxShadow: 2,
-                    border: `2px solid ${colors.blueAccent[400]}`,
-                  }}
-                />
+              {imagePreviews.length > 0 && (
+                <Box display="flex" gap={1} flexWrap="wrap">
+                  {imagePreviews.map((src, idx) => (
+                    <Avatar
+                      key={idx}
+                      src={src}
+                      alt={`Preview ${idx}`}
+                      variant="rounded"
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        boxShadow: 2,
+                        border: `2px solid ${colors.blueAccent[400]}`,
+                      }}
+                    />
+                  ))}
+                </Box>
               )}
             </Box>
 

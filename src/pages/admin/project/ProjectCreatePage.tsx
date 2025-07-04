@@ -31,8 +31,8 @@ export default function ProjectCreatePage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [decorationId, setDecorationId] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [decorations, setDecorations] = useState<Decoration[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -50,10 +50,11 @@ export default function ProjectCreatePage() {
   }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setImageFiles(files);
+    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
   const uploadImageToBE = async (file: File, folder: string) => {
@@ -87,33 +88,31 @@ export default function ProjectCreatePage() {
 
       const projectId = createRes.data.id;
 
-      if (imageFile) {
+      if (imageFiles.length > 0) {
         const selectedDecoration = decorations.find(
           (decoration) => decoration.id === decorationId
         );
-
-        if (!selectedDecoration) {
-          throw new Error("Dekorasi tidak ditemukan.");
-        }
+        if (!selectedDecoration) throw new Error("Dekorasi tidak ditemukan.");
 
         let folderName = selectedDecoration.category || "default";
         folderName = folderName
           .trim()
           .replace(/\s+/g, "_")
           .replace(/[^a-zA-Z0-9_-]/g, "");
-
-        if (folderName.toLowerCase() === "engagement") {
+        if (folderName.toLowerCase() === "engagement")
           folderName = "Engagement";
-        } else if (folderName.toLowerCase() === "wedding") {
-          folderName = "Wedding";
-        } else if (!["users", "gallery"].includes(folderName)) {
+        else if (folderName.toLowerCase() === "wedding") folderName = "Wedding";
+        else if (!["users", "gallery"].includes(folderName))
           folderName = "general";
+
+        const uploadedUrls: string[] = [];
+        for (const file of imageFiles) {
+          const url = await uploadImageToBE(file, folderName);
+          uploadedUrls.push(url);
         }
 
-        const uploadedImageUrl = await uploadImageToBE(imageFile, folderName);
-
         await api.post(`/admin/project-decorations/${projectId}/images`, {
-          images: [uploadedImageUrl],
+          images: uploadedUrls,
         });
       }
 
@@ -237,26 +236,32 @@ export default function ProjectCreatePage() {
                   fontWeight: 600,
                 }}
               >
-                {imageFile ? "Ganti Gambar" : "Upload Gambar"}
+                {imageFiles ? "Upload Gambar" : "Ganti Gambar"}
                 <input
                   type="file"
                   accept="image/*"
                   hidden
+                  multiple
                   onChange={handleImageChange}
                 />
               </Button>
-              {imagePreview && (
-                <Avatar
-                  src={imagePreview}
-                  alt="Preview"
-                  variant="rounded"
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    boxShadow: 2,
-                    border: `2px solid ${colors.blueAccent[400]}`,
-                  }}
-                />
+              {imagePreviews.length > 0 && (
+                <Box display="flex" gap={1} flexWrap="wrap">
+                  {imagePreviews.map((src, idx) => (
+                    <Avatar
+                      key={idx}
+                      src={src}
+                      alt={`Preview ${idx}`}
+                      variant="rounded"
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        boxShadow: 2,
+                        border: `2px solid ${colors.blueAccent[400]}`,
+                      }}
+                    />
+                  ))}
+                </Box>
               )}
             </Box>
 
