@@ -124,9 +124,13 @@ export default function BookingPageAdmin() {
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Base Price
                 </TableCell>
-                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Actions
-                </TableCell>
+                {bookings.some((booking) => booking.status === "pending") && (
+                  <TableCell
+                    sx={{ color: colors.grey[100], fontWeight: "bold" }}
+                  >
+                    Actions
+                  </TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
