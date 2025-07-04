@@ -70,11 +70,11 @@ export default function BookingPageAdmin() {
   // Helper function untuk format status
   const formatStatus = (status: string): string => {
     const statusMap: { [key: string]: string } = {
-      pending: "PENDING",
-      cancelled: "CANCELLED",
-      first_paid: "FIRST PAID",
-      fully_paid: "FULLY PAID",
-      confirmed: "CONFIRMED",
+      pending: "pending",
+      cancelled: "cancelled",
+      first_paid: "first paid",
+      fully_paid: "fully paid",
+      confirmed: "confirmed",
     };
     return statusMap[status] || status.toUpperCase();
   };
