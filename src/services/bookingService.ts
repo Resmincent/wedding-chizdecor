@@ -64,3 +64,14 @@ export const cancelBooking = async (
   const response = await api.patch(`/admin/booking/${id}/cancel`);
   return response.data;
 };
+
+/**
+ * Menghapus booking tertentu
+ */
+
+export const deleteBooking = async (
+  id: string
+): Promise<{ message: string; data: BookingDetailAdmin }> => {
+  const res = await api.delete(`/admin/booking/${id}`);
+  return res.data;
+};

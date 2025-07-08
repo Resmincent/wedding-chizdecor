@@ -13,8 +13,17 @@ import {
   TableRow,
   Paper,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
-import { getAllBookings, cancelBooking } from "../../services/bookingService";
+import {
+  getAllBookings,
+  cancelBooking,
+  deleteBooking,
+} from "../../services/bookingService";
 import type { BookingDetailAdmin } from "../../models/model";
 import { toast } from "react-toastify";
 
@@ -24,6 +33,10 @@ export default function BookingPageAdmin() {
 
   const [bookings, setBookings] = useState<BookingDetailAdmin[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    null
+  );
 
   const fetchBookings = async () => {
     try {
@@ -65,6 +78,26 @@ export default function BookingPageAdmin() {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedBookingId) return;
+    try {
+      await deleteBooking(selectedBookingId);
+      toast.success("Paket booking berhasil dihapus.");
+      fetchBookings();
+    } catch (error) {
+      console.error("❌ Failed to delete booking:", error);
+      toast.error("Gagal menghapus paket booking.");
+    } finally {
+      setOpenDeleteModal(false);
+      setSelectedBookingId(null);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setSelectedBookingId(id);
+    setOpenDeleteModal(true);
   };
 
   // Helper function untuk format status
@@ -124,13 +157,9 @@ export default function BookingPageAdmin() {
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Total Harga
                 </TableCell>
-                {bookings.some((booking) => booking.status === "pending") && (
-                  <TableCell
-                    sx={{ color: colors.grey[100], fontWeight: "bold" }}
-                  >
-                    Aksi
-                  </TableCell>
-                )}
+                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
+                  Aksi
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -144,16 +173,24 @@ export default function BookingPageAdmin() {
                   <TableCell>{formatStatus(booking.status)}</TableCell>
                   <TableCell>{formatCurrency(booking.total_price)}</TableCell>
                   <TableCell>
-                    {booking.status === "pending" && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => handleCancel(booking.id)}
-                      >
-                        Cancel
-                      </Button>
-                    )}
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      size="small"
+                      disabled={booking.status === "Done"}
+                      sx={{ mr: 1, mb: 1 }}
+                      onClick={() => handleCancel(booking.id)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDelete(booking.id)}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -168,6 +205,30 @@ export default function BookingPageAdmin() {
           </Table>
         </TableContainer>
       </Box>
+      <Dialog
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        aria-labelledby="delete-confirmation-dialog-title"
+        aria-describedby="delete-confirmation-dialog-description"
+      >
+        <DialogTitle id="delete-confirmation-dialog-title">
+          Konfirmasi Hapus
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-confirmation-dialog-description">
+            Apakah Anda yakin ingin menghapus booking ini? Tindakan ini tidak
+            dapat dibatalkan.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteModal(false)} color="inherit">
+            Batal
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Hapus
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

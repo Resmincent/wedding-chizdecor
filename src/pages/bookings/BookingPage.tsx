@@ -139,7 +139,7 @@ export default function BookingPage() {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking) => (
+                {bookings.map((booking: UserBookingItem) => (
                   <tr key={booking.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 border-b">
                       {booking.decoration.title}
@@ -161,7 +161,8 @@ export default function BookingPage() {
                       >
                         Lihat Invoice
                       </Link>
-                      {renderPaymentButtons(booking)}
+                      {booking.status !== "cancelled" &&
+                        renderPaymentButtons(booking)}
                     </td>
                   </tr>
                 ))}
