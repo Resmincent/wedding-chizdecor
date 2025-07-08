@@ -102,6 +102,9 @@ export default function BookingPage() {
         )}
         {booking.available_payments.includes("final") && (
           <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
             onClick={() => handlePayment(booking.id, "final")}
             disabled={booking.available_payments.includes("first")}
             className="mt-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
