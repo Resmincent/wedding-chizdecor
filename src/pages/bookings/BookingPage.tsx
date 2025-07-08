@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { loadMidtransScript } from "../../utils/loadMidtrans";
 import { payWithMidtrans } from "../../utils/midtrans";
 import axios from "axios";
+import { Button } from "@mui/material";
 
 export default function BookingPage() {
   const [bookings, setBookings] = useState<UserBookingItem[]>([]);
@@ -100,12 +101,13 @@ export default function BookingPage() {
           </button>
         )}
         {booking.available_payments.includes("final") && (
-          <button
+          <Button
             onClick={() => handlePayment(booking.id, "final")}
+            disabled={booking.available_payments.includes("first")}
             className="mt-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
           >
             Pelunasan
-          </button>
+          </Button>
         )}
       </div>
     );
