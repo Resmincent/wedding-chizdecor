@@ -1,27 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type {
-  BookingDetailAdminResponse,
-  PaymentType,
-} from "../../models/model";
+import type { BookingDetail, PaymentType } from "../../models/model";
 import { getBookingDetailAdmin } from "../../services/bookingService";
 import { useRef } from "react";
 
-export default function BookingDetailAdmin() {
+export default function InvoicePage() {
   const { id } = useParams<{ id: string }>();
-  const [booking, setBooking] = useState<BookingDetailAdminResponse | null>(
-    null
-  );
+  const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!id) return;
     getBookingDetailAdmin(id)
-      .then((res) => {
-        console.log("RESPONSE:", res.data);
-        setBooking(res.data);
-      })
+      .then((res) => setBooking(res.data))
       .catch((err) => {
         console.error("Gagal mengambil data invoice:", err);
         alert("Gagal memuat data invoice.");
@@ -90,80 +82,67 @@ export default function BookingDetailAdmin() {
     );
   }
 
-  const {
-    id: bookingId,
-    user,
-    status,
-    created_at,
-    decoration,
-    total_price,
-    additional_services,
-    dp_amount,
-    first_payment_amount,
-    final_payment_amount,
-    paid_payments = [],
-    available_payments = [],
-  } = booking;
-
   return (
     <div ref={printRef} className="min-h-screen bg-gray-100 py-10 px-4">
       <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="bg-gray-400 text-white p-4 text-center">
-          <h1 className="text-2xl font-bold">Invoice Pembayaran</h1>
-          <p className="text-sm mt-1">ID Booking: {bookingId}</p>
+          <h1 className="text-2xl font-bold text-black">Invoice Pembayaran</h1>
+          <p className="text-sm mt-1 text-black">ID Booking: {booking.id}</p>
         </div>
 
         <div className="p-6 space-y-4">
           <div className="flex justify-between">
             <div>
-              <h2 className="font-semibold text-black">Kepada:</h2>
-              <p className="text-gray-800">{user.name}</p>
-              <p className="text-sm text-gray-600">{user.phone_number}</p>
+              <h2 className="font-semibold  text-black">Kepada:</h2>
+              <p className="text-black">{booking.user.name}</p>
+              <p className="text-sm text-gray-600">
+                {booking.user.phone_number}
+              </p>
             </div>
             <div className="text-right">
-              <h2 className="font-semibold text-black">Tanggal Booking:</h2>
-              <p className="text-gray-800">
-                {new Date(created_at).toLocaleString("id-ID")}
+              <h2 className="font-semibold  text-black">Tanggal Booking:</h2>
+              <p className="text-black">
+                {new Date(booking.created_at).toLocaleString("id-ID")}
               </p>
             </div>
           </div>
 
           <div
-            className={`py-2 px-4 rounded-md ${getStatusColor(
-              status
+            className={`py-2 px-4 rounded-md text-black ${getStatusColor(
+              booking.status
             )} inline-block mb-4`}
           >
-            <span className="capitalize">{getStatusLabel(status)}</span>
+            <span className="capitalize text-black">
+              {getStatusLabel(booking.status)}
+            </span>
           </div>
 
-          <table className="w-full table-auto border-collapse">
+          <table className="w-full table-auto border-collapse text-black">
             <thead>
               <tr className="bg-gray-200 text-left">
-                <th className="px-4 py-2 text-black">Item</th>
-                <th className="px-4 py-2 text-black">Qty</th>
-                <th className="px-4 py-2 text-black">Harga</th>
-                <th className="px-4 py-2 text-black">Total</th>
+                <th className="px-4 py-2 ">Item</th>
+                <th className="px-4 py-2 ">Qty</th>
+                <th className="px-4 py-2 ">Harga</th>
+                <th className="px-4 py-2 ">Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b text-black">
-                <td className="px-4 py-2 text-black">{decoration.title}</td>
-                <td className="px-4 py-2 text-black">1</td>
-                <td className="px-4 py-2 text-black">
-                  {formatRupiah(decoration.base_price)}
+              <tr className="border-b">
+                <td className="px-4 py-2">{booking.decoration.title}</td>
+                <td className="px-4 py-2">1</td>
+                <td className="px-4 py-2">
+                  {formatRupiah(booking.decoration.base_price)}
                 </td>
-                <td className="px-4 py-2 text-black">
-                  {formatRupiah(decoration.base_price)}
+                <td className="px-4 py-2">
+                  {formatRupiah(booking.decoration.base_price)}
                 </td>
               </tr>
-              {additional_services.map((item, index) => (
-                <tr key={index} className="border-b text-black">
-                  <td className="px-4 py-2 text-black">{item.name}</td>
-                  <td className="px-4 py-2 text-black">{item.quantity}</td>
-                  <td className="px-4 py-2 text-black">
-                    {formatRupiah(item.price)}
-                  </td>
-                  <td className="px-4 py-2 text-black">
+              {booking.additional_services.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="px-4 py-2">{item.name}</td>
+                  <td className="px-4 py-2">{item.quantity}</td>
+                  <td className="px-4 py-2">{formatRupiah(item.price)}</td>
+                  <td className="px-4 py-2">
                     {formatRupiah(item.price * item.quantity)}
                   </td>
                 </tr>
@@ -171,16 +150,14 @@ export default function BookingDetailAdmin() {
             </tbody>
           </table>
 
-          <div className="mt-4 text-right ">
-            <h3 className="text-xl font-bold text-black">
-              Total: {formatRupiah(total_price)}
+          <div className="mt-4 text-right  text-black">
+            <h3 className="text-xl font-bold">
+              Total: {formatRupiah(booking.total_price)}
             </h3>
           </div>
 
-          <div className="mt-6 border-t pt-4 space-y-2 text-black">
-            <h3 className="font-semibold mb-2 text-black">
-              Rincian Pembayaran:
-            </h3>
+          <div className="mt-6 border-t pt-4 space-y-2  text-black">
+            <h3 className="font-semibold mb-2">Rincian Pembayaran:</h3>
 
             {(["dp", "first", "final"] as PaymentType[]).map((type) => {
               const labelMap: Record<PaymentType, string> = {
@@ -190,13 +167,13 @@ export default function BookingDetailAdmin() {
               };
 
               const amountMap: Record<PaymentType, number> = {
-                dp: dp_amount,
-                first: first_payment_amount,
-                final: final_payment_amount,
+                dp: booking.dp_amount,
+                first: booking.first_payment_amount,
+                final: booking.final_payment_amount,
               };
 
-              const isAlreadyPaid = paid_payments.includes(type);
-              const isNowAvailable = available_payments.includes(type);
+              const isAlreadyPaid = booking.paid_payments.includes(type);
+              const isNowAvailable = booking.available_payments.includes(type);
 
               if (!isAlreadyPaid && !isNowAvailable) return null;
 

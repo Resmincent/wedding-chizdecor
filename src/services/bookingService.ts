@@ -4,7 +4,6 @@ import type {
   UserBookingItem,
   BookingDetail,
   BookingDetailAdmin,
-  BookingDetailAdminResponse,
 } from "../models/model";
 import api from "./api";
 
@@ -92,7 +91,7 @@ export const cancelUserBooking = async (
 
 export const getBookingDetailAdmin = async (
   id: string
-): Promise<{ data: BookingDetailAdminResponse }> => {
+): Promise<{ data: BookingDetail }> => {
   const response = await api.get(`/admin/booking/${id}`);
   return response.data;
 };
