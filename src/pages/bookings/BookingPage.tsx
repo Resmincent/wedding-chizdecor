@@ -36,7 +36,7 @@ export default function BookingPage() {
       setShowWaModal(true);
     }
 
-    window.history.replaceState({}, document.title); // clear state
+    window.history.replaceState({}, document.title);
   }, [location.state]);
 
   const fetchBookings = async () => {
@@ -243,6 +243,7 @@ export default function BookingPage() {
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => setShowWaModal(false)}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Buka WhatsApp
