@@ -180,7 +180,10 @@ export default function BookingPageAdmin() {
                       variant="outlined"
                       color="secondary"
                       size="small"
-                      disabled={booking.status === "Done"}
+                      disabled={
+                        booking.status === "Done" ||
+                        booking.status === "cancelled"
+                      }
                       sx={{ mr: 1 }}
                       onClick={() => handleCancel(booking.id)}
                     >

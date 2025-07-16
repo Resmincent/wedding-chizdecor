@@ -186,7 +186,10 @@ export default function BookingPage() {
                         variant="outlined"
                         color="error"
                         size="small"
-                        disabled={booking.status === "cancelled"}
+                        disabled={
+                          booking.status === "cancelled" ||
+                          booking.status === "done"
+                        }
                         onClick={() => handleCancel(booking.id)}
                       >
                         Cancel
