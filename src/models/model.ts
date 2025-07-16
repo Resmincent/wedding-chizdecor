@@ -123,6 +123,7 @@ export interface BookingDetailAdmin {
   decoration: Decoration;
   addons_total: number;
   total_price: number;
+  payment_summary: string;
 }
 
 export interface BookingDetailAdminResponse {

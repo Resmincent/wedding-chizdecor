@@ -141,9 +141,6 @@ export default function BookingPageAdmin() {
                   Nama Pelanggan
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  Nomor Telepon
-                </TableCell>
-                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Paket Dekorasi
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
@@ -154,6 +151,9 @@ export default function BookingPageAdmin() {
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Total Harga
+                </TableCell>
+                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
+                  Rincian Pembayaran
                 </TableCell>
                 <TableCell
                   sx={{
@@ -170,11 +170,11 @@ export default function BookingPageAdmin() {
               {bookings.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell>{booking.user.name}</TableCell>
-                  <TableCell>{booking.user.phone_number}</TableCell>
                   <TableCell>{booking.decoration.title}</TableCell>
                   <TableCell>{formatDate(booking.date)}</TableCell>
                   <TableCell>{formatStatus(booking.status)}</TableCell>
                   <TableCell>{formatCurrency(booking.total_price)}</TableCell>
+                  <TableCell>{booking.payment_summary}</TableCell>
                   <TableCell>
                     <Button
                       variant="outlined"
