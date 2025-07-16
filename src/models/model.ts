@@ -59,6 +59,7 @@ export interface BookingData {
   invoice_url: string | null;
   created_at: string;
   updated_at: string;
+  whatsapp_link: string | null;
 }
 
 export interface BookingCreatedResponse {

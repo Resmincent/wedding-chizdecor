@@ -18,14 +18,25 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
+  const [showWaModal, setShowWaModal] = useState(false);
 
   useEffect(() => {
-    const state = location.state as { successMessage?: string };
+    const state = location.state as {
+      successMessage?: string;
+      whatsappLink?: string;
+    };
+
     if (state?.successMessage) {
       setSuccessMessage(state.successMessage);
-      // Optional: clear history state agar tidak muncul lagi jika refresh
-      window.history.replaceState({}, document.title);
     }
+
+    if (state?.whatsappLink) {
+      setWhatsappLink(state.whatsappLink);
+      setShowWaModal(true);
+    }
+
+    window.history.replaceState({}, document.title); // clear state
   }, [location.state]);
 
   const fetchBookings = async () => {
@@ -99,26 +110,35 @@ export default function BookingPage() {
     return (
       <div className="flex flex-col items-center space-y-1">
         {booking.available_payments.includes("dp") && (
-          <button
+          <Button
+            variant="outlined"
+            color="primary"
+            sx={{ textTransform: "none", width: "70%" }}
+            size="small"
             onClick={() => handlePayment(booking.id, "dp")}
             className="mt-1 px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
           >
             Bayar DP
-          </button>
+          </Button>
         )}
         {booking.available_payments.includes("first") && (
-          <button
+          <Button
+            variant="outlined"
+            color="primary"
+            sx={{ textTransform: "none", width: "70%" }}
+            size="small"
             onClick={() => handlePayment(booking.id, "first")}
             className="mt-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Bayar Tahap 1
-          </button>
+          </Button>
         )}
         {booking.available_payments.includes("final") && (
           <Button
             variant="outlined"
             color="secondary"
             size="small"
+            sx={{ textTransform: "none", width: "70%" }}
             onClick={() => handlePayment(booking.id, "final")}
             disabled={booking.available_payments.includes("first")}
             className="mt-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
@@ -184,6 +204,7 @@ export default function BookingPage() {
                         renderPaymentButtons(booking)}
                       <Button
                         variant="outlined"
+                        sx={{ textTransform: "none", width: "70%" }}
                         color="error"
                         size="small"
                         disabled={
@@ -202,6 +223,34 @@ export default function BookingPage() {
           </div>
         )}
       </div>
+      {showWaModal && whatsappLink && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              Booking Berhasil!
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Klik tombol di bawah untuk menghubungi admin via WhatsApp.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowWaModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Nanti Saja
+              </button>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Buka WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
