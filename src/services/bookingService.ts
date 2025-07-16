@@ -4,6 +4,7 @@ import type {
   UserBookingItem,
   BookingDetail,
   BookingDetailAdmin,
+  BookingDetailAdminResponse,
 } from "../models/model";
 import api from "./api";
 
@@ -74,4 +75,24 @@ export const deleteBooking = async (
 ): Promise<{ message: string; data: BookingDetailAdmin }> => {
   const res = await api.delete(`/admin/booking/${id}`);
   return res.data;
+};
+
+/**
+ * Membatalkan booking tertentu (user only)
+ */
+export const cancelUserBooking = async (
+  id: string
+): Promise<{
+  messagee: string;
+  data: BookingDetail;
+}> => {
+  const res = await api.patch(`/booking/${id}/cancel`);
+  return res.data;
+};
+
+export const getBookingDetailAdmin = async (
+  id: string
+): Promise<{ data: BookingDetailAdminResponse }> => {
+  const response = await api.get(`/admin/booking/${id}`);
+  return response.data;
 };

@@ -3,6 +3,7 @@ export interface AdditionalService {
   name: string;
   price: number;
   unit: string;
+  quantity: number;
 }
 
 export interface AdditionalServiceResponse {
@@ -111,6 +112,7 @@ interface User {
   id: string;
   name: string;
   phone_number: string;
+  email: string;
 }
 export interface BookingDetailAdmin {
   id: string;
@@ -121,6 +123,31 @@ export interface BookingDetailAdmin {
   decoration: Decoration;
   addons_total: number;
   total_price: number;
+}
+
+export interface BookingDetailAdminResponse {
+  id: string;
+  user: {
+    name: string;
+    phone_number: string;
+  };
+  status: string;
+  created_at: string;
+  decoration: {
+    title: string;
+    base_price: number;
+  };
+  total_price: number;
+  additional_services: {
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
+  dp_amount: number;
+  first_payment_amount: number;
+  final_payment_amount: number;
+  paid_payments: PaymentType[];
+  available_payments: PaymentType[];
 }
 
 export interface LoginResponse {

@@ -26,6 +26,7 @@ import {
 } from "../../services/bookingService";
 import type { BookingDetailAdmin } from "../../models/model";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 export default function BookingPageAdmin() {
   const theme = useTheme();
@@ -131,14 +132,11 @@ export default function BookingPageAdmin() {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="Booking" subtitle="Manage your bookings here" />
       </Box>
-      <Box mt="20px" p="20px">
+      <Box mt="20px">
         <TableContainer component={Paper}>
           <Table>
             <TableHead sx={{ backgroundColor: colors.primary[400] }}>
               <TableRow>
-                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
-                  ID Booking
-                </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Nama Pelanggan
                 </TableCell>
@@ -157,7 +155,13 @@ export default function BookingPageAdmin() {
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Total Harga
                 </TableCell>
-                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
+                <TableCell
+                  sx={{
+                    color: colors.grey[100],
+                    fontWeight: "bold",
+                    width: "300px",
+                  }}
+                >
                   Aksi
                 </TableCell>
               </TableRow>
@@ -165,7 +169,6 @@ export default function BookingPageAdmin() {
             <TableBody>
               {bookings.map((booking) => (
                 <TableRow key={booking.id}>
-                  <TableCell>{booking.id}</TableCell>
                   <TableCell>{booking.user.name}</TableCell>
                   <TableCell>{booking.user.phone_number}</TableCell>
                   <TableCell>{booking.decoration.title}</TableCell>
@@ -178,7 +181,7 @@ export default function BookingPageAdmin() {
                       color="secondary"
                       size="small"
                       disabled={booking.status === "Done"}
-                      sx={{ mr: 1, mb: 1 }}
+                      sx={{ mr: 1 }}
                       onClick={() => handleCancel(booking.id)}
                     >
                       Cancel
@@ -187,10 +190,18 @@ export default function BookingPageAdmin() {
                       variant="outlined"
                       color="error"
                       size="small"
+                      sx={{ mr: 1 }}
                       onClick={() => handleDelete(booking.id)}
                     >
                       Delete
                     </Button>
+                    {booking && (
+                      <Link to={`/admin/bookings/${booking.id}`}>
+                        <Button variant="outlined" color="warning" size="small">
+                          Detail
+                        </Button>
+                      </Link>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

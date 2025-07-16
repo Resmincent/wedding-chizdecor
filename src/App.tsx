@@ -34,6 +34,7 @@ import GalleryEditPage from "./pages/admin/gallery/GalleryEditPage";
 import ProjectDecorationPageAdmin from "./pages/admin/ProjectDecorationPageAdmin";
 import ProjectCreatePage from "./pages/admin/project/ProjectCreatePage";
 import ProjectEditPage from "./pages/admin/project/ProjectEditPage";
+import BookingDetailAdmin from "./pages/admin/BookingDetailAdmin";
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
           element={<ProjectEditPage />}
         />
         <Route path="bookings" element={<BookingPageAdmin />} />
+        <Route path="bookings/:id" element={<BookingDetailAdmin />} />
       </Route>
     </Routes>
   );

@@ -2,7 +2,10 @@ import { Link, useLocation } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import type { UserBookingItem } from "../../models/model";
-import { getMyBookings } from "../../services/bookingService";
+import {
+  cancelUserBooking,
+  getMyBookings,
+} from "../../services/bookingService";
 import { generateMidtransToken } from "../../services/midtransService";
 import { toast } from "react-toastify";
 import { loadMidtransScript } from "../../utils/loadMidtrans";
@@ -25,19 +28,19 @@ export default function BookingPage() {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const res = await getMyBookings();
-        setBookings(res.data);
-      } catch (error) {
-        console.error("❌ Gagal mengambil data booking:", error);
-        toast.error("Gagal memuat data booking.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchBookings = async () => {
+    try {
+      const res = await getMyBookings();
+      setBookings(res.data);
+    } catch (error) {
+      console.error("❌ Gagal mengambil data booking:", error);
+      toast.error("Gagal memuat data booking.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBookings();
   }, []);
 
@@ -71,6 +74,17 @@ export default function BookingPage() {
       }
 
       console.error("Midtrans error:", err);
+    }
+  };
+
+  const handleCancel = async (bookingId: string) => {
+    try {
+      await cancelUserBooking(bookingId);
+      toast.success("Booking berhasil dibatalkan.");
+      fetchBookings();
+    } catch (error) {
+      console.error("❌ Failed to cancel booking:", error);
+      toast.error("Gagal membatalkan booking.");
     }
   };
 
@@ -168,6 +182,15 @@ export default function BookingPage() {
                       </Link>
                       {booking.status !== "cancelled" &&
                         renderPaymentButtons(booking)}
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        disabled={booking.status === "cancelled"}
+                        onClick={() => handleCancel(booking.id)}
+                      >
+                        Cancel
+                      </Button>
                     </td>
                   </tr>
                 ))}
